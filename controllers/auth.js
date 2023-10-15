@@ -1,18 +1,43 @@
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const validator = require('validator');
 
 class authController {
 // Register user
 register = async (req, res) => {
     try {
-        const { username, password } = req.body
+        const { firstname, lastname, email, password } = req.body
 
-        const isUsed = await User.findOne({ username })
+        const isUsed = await User.findOne({email})
+
+        if (validator.isEmpty(firstname)) {
+            return res.json({
+                message: 'Поле First Name не может быть пустым.',
+            })
+        }
+
+        if (validator.isEmpty(email)) {
+            return res.json({
+                message: 'Поле Email не может быть пустым.',
+            })
+        }
+
+        if (!validator.isEmail(email)) {
+            return res.json({
+                message: 'Введен некорректный Email.',
+            })
+        }
+
+        if (validator.isEmpty(password)) {
+            return res.json({
+                message: 'Поле Password не может быть пустым.',
+            })
+        }
 
         if (isUsed) {
             return res.json({
-                message: 'Данный username уже занят.',
+                message: 'Данный e-mail уже зарегистрирован.',
             })
         }
 
@@ -20,7 +45,9 @@ register = async (req, res) => {
         const hash = bcrypt.hashSync(password, salt)
 
         const newUser = new User({
-            username,
+            firstname,
+            lastname,
+            email,
             password: hash,
         })
 
@@ -47,12 +74,12 @@ register = async (req, res) => {
 // Login user
 login = async (req, res) => {
     try {
-        const { username, password } = req.body
-        const user = await User.findOne({ username })
+        const { email, password } = req.body
+        const user = await User.findOne({email})
 
         if (!user) {
             return res.json({
-                message: 'Такого юзера не существует.',
+                message: 'Такого пользователя не существует.',
             })
         }
 

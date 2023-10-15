@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const checkAuth = (req, res, next) => {
     const token = (req.headers.authorization || '').replace(/Bearer\s?/, '');
 
-    if (token){
+    if (token) {
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
@@ -12,14 +12,14 @@ const checkAuth = (req, res, next) => {
             next();
         } catch(e) {
             return res.json({
-                message: 'no success'
+                message: 'unauthorized token'
             })
         }
     } else {
         return res.json({
-            message: 'no success'
+            message: 'unauthorized token'
         })
     }
 }
 
-module.exports = {checkAuth};
+module.exports = { checkAuth };
